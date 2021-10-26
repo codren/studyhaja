@@ -1,7 +1,11 @@
 package com.studyhaja.controller;
+import com.studyhaja.domain.Member;
 import com.studyhaja.dto.JoinFormDto;
+import com.studyhaja.repository.MemberRepository;
 import com.studyhaja.validator.JoinFormValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -17,7 +21,9 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class MemberController {
 
+    private final MemberRepository memberRepository;
     private final JoinFormValidator joinFormValidator;
+    private final JavaMailSender javaMailSender;
 
     // 이메일 또는 닉네임 중복 검증
     @InitBinder("joinFormDto")
@@ -40,6 +46,26 @@ public class MemberController {
         if (errors.hasErrors()) {
             return "member/joinForm";
         }
+
+        Member member = Member.builder()
+                .email(joinFormDto.getEmail())
+                .nickname(joinFormDto.getNickname())
+                .password(joinFormDto.getPassword())    // TODO encoding
+                .studyCreatedByWeb(true)
+                .studyEnrollResultByWeb(true)
+                .studyUpdateByWeb(true)
+                .build();
+        Member newMember = memberRepository.save(member);
+
+        // 메일 인증 부분
+        newMember.generateEmailToken();
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(newMember.getEmail());
+        mailMessage.setSubject("스터디하자, 회원가입 인증");
+        mailMessage.setText("/member/email/check-token?token=" + newMember.getEmailToken() +
+                "&email=" + newMember.getEmail());
+        javaMailSender.send(mailMessage);
+
         return "redirect:/";
     }
 }
