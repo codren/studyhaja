@@ -6,6 +6,7 @@ import com.studyhaja.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 
@@ -16,6 +17,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final JavaMailSender javaMailSender;
+    private final PasswordEncoder passwordEncoder;
 
     // 회원가입
     public void saveMember(JoinFormDto joinFormDto) {
@@ -28,7 +30,7 @@ public class MemberService {
         Member member = Member.builder()
                 .email(joinFormDto.getEmail())
                 .nickname(joinFormDto.getNickname())
-                .password(joinFormDto.getPassword())    // TODO encoding
+                .password(passwordEncoder.encode(joinFormDto.getPassword()))
                 .studyCreatedByWeb(true)
                 .studyEnrollResultByWeb(true)
                 .studyUpdateByWeb(true)
