@@ -14,6 +14,13 @@ import java.io.InputStream;
 @Component
 @Slf4j
 public class ConsoleMailSender  implements JavaMailSender {
+
+    @Override
+    public void send(SimpleMailMessage simpleMessage) throws MailException {
+
+        log.info(simpleMessage.getText());
+    }
+
     @Override
     public MimeMessage createMimeMessage() {
         return null;
@@ -44,12 +51,7 @@ public class ConsoleMailSender  implements JavaMailSender {
 
     }
 
-    @Override
-    public void send(SimpleMailMessage simpleMessage) throws MailException {
 
-        log.info(simpleMessage.getText());
-
-    }
 
     @Override
     public void send(SimpleMailMessage... simpleMessages) throws MailException {
