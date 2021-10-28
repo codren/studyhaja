@@ -46,7 +46,8 @@ public class MemberController {
             return "member/joinForm";
         }
 
-        memberService.saveMember(joinFormDto);
+        Member savedMember = memberService.saveMember(joinFormDto);
+        memberService.memberLogin(savedMember);
         return "redirect:/";
     }
 
@@ -67,6 +68,7 @@ public class MemberController {
         }
 
         member.completeJoin();
+        memberService.memberLogin(member);
 
         model.addAttribute("nickname", member.getNickname());
         model.addAttribute("numberOfMember", memberRepository.count());

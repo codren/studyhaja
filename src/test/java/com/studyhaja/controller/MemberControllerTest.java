@@ -11,16 +11,21 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class MemberControllerTest {
 
     @Autowired
@@ -52,7 +57,8 @@ class MemberControllerTest {
                 .param("password", "12341234")
                 .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/"));
+                .andExpect(view().name("redirect:/"))
+                .andExpect(authenticated());
 
         Member member = memberRepository.findByEmail("test@naver.com");
         assertNotNull(member);
@@ -72,7 +78,8 @@ class MemberControllerTest {
                 .param("password", "12345")
                 .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("member/joinForm"));
+                .andExpect(view().name("member/joinForm"))
+                .andExpect(unauthenticated());
     }
 
     @Test
@@ -95,7 +102,8 @@ class MemberControllerTest {
                 .andExpect(model().attributeDoesNotExist("error"))
                 .andExpect(model().attributeExists("nickname"))
                 .andExpect(model().attributeExists("numberOfMember"))
-                .andExpect(view().name("member/emailCheckResult"));
+                .andExpect(view().name("member/emailCheckResult"))
+                .andExpect(authenticated());
     }
 
     @Test
@@ -107,6 +115,7 @@ class MemberControllerTest {
                 .param("token", "12341234"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("error"))
-                .andExpect(view().name("member/emailCheckResult"));
+                .andExpect(view().name("member/emailCheckResult"))
+                .andExpect(unauthenticated());
     }
 }
