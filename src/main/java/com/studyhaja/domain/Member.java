@@ -1,7 +1,6 @@
 package com.studyhaja.domain;
 
 import lombok.*;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -48,6 +47,11 @@ public class Member {
     private boolean studyEnrollResultByWeb;
     private boolean studyUpdateByEmail;
     private boolean studyUpdateByWeb;
+
+    public void completeJoin() {
+        this.emailVerified = true;
+        this.joinedTime = LocalDateTime.now();
+    }
 
     public void generateEmailToken() {
         this.emailToken = UUID.randomUUID().toString();

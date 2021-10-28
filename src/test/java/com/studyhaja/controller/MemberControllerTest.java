@@ -11,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.web.servlet.MockMvc;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
@@ -74,5 +73,40 @@ class MemberControllerTest {
                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("member/joinForm"));
+    }
+
+    @Test
+    @DisplayName("이메일 인증 - 입력값 정상")
+    void emailTokenCheckTest_valid_input() throws Exception {
+
+        Member member = Member.builder()
+                .email("test@naver.com")
+                .nickname("test")
+                .password("12341234")
+                .build();
+
+        member.generateEmailToken();
+        Member savedMember = memberRepository.save(member);
+
+        mockMvc.perform(get("/member/email/check-token")
+                .param("email", member.getEmail())
+                .param("token", member.getEmailToken()))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeDoesNotExist("error"))
+                .andExpect(model().attributeExists("nickname"))
+                .andExpect(model().attributeExists("numberOfMember"))
+                .andExpect(view().name("member/emailCheckResult"));
+    }
+
+    @Test
+    @DisplayName("이메일 인증 - 입력값 오류")
+    void emailTokenCheckTest_invalid_input() throws Exception {
+
+        mockMvc.perform(get("/member/email/check-token")
+                .param("email", "test@naver.com")
+                .param("token", "12341234"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("error"))
+                .andExpect(view().name("member/emailCheckResult"));
     }
 }

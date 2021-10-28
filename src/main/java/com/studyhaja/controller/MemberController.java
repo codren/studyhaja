@@ -5,8 +5,6 @@ import com.studyhaja.repository.MemberRepository;
 import com.studyhaja.service.MemberService;
 import com.studyhaja.validator.JoinFormValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/member")
@@ -57,7 +54,7 @@ public class MemberController {
     @GetMapping("/email/check-token")
     public String checkEmailToken(String token, String email, Model model) {
 
-        String view = "/member/emailCheckResult";
+        String view = "member/emailCheckResult";
         Member member = memberRepository.findByEmail(email);
 
         if (member == null) {
@@ -69,10 +66,11 @@ public class MemberController {
             return view;
         }
 
-        member.setEmailVerified(true);
-        member.setJoinedTime(LocalDateTime.now());
+        member.completeJoin();
+
         model.addAttribute("nickname", member.getNickname());
         model.addAttribute("numberOfMember", memberRepository.count());
+
         return view;
     }
 }
