@@ -1,96 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title>Study HAJA</title>
-    <link rel="stylesheet" th:href="@{/css/normalize.css}">
-    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/mainLayout}">
 
-    <style>
-        .container {
-            max-width: 100%;
-        }
-        .footer {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-        }
 
-    </style>
-</head>
-
-<body class="bg-light">
-<div class="container">
-    <header class="navbar navbar-expand-sm navbar-primary py-3 mb-4 border-bottom">
-        <a class="navbar-brand" href="/" th:href="@{/}">
-            Study HAJA
-        </a>
-        <div class="navbar-light">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <form th:action="@{/search/study}" class="form-inline" method="get">
-                        <input class="form-control mr-sm-2" name="keyword" type="search" placeholder="스터디 찾기"
-                               aria-label="Search"/>
-                    </form>
-                </li>
-                <li class="nav-item" sec:authorize="!isAuthenticated()">
-                    <a class="nav-link " href="#" th:href="@{/member/login}">로그인</a>
-                </li>
-                <li class="nav-item" sec:authorize="!isAuthenticated()">
-                    <a class="nav-link" href="#" th:href="@{/member/new}">회원가입</a>
-                </li>
-                <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <a class="nav-link" href="#" th:href="@{/notification}">알림</a>
-                </li>
-                <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <a class="nav-link" href="#" th:href="@{/notification}">스터디개설</a>
-                </li>
-                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        프로필
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <h6 class="dropdown-header"><span sec:authentication="name"></span></h6>
-                        <a class="dropdown-item" th:href="@{'/profile/' + ${#authentication.name}}">프로필</a>
-                        <a class="dropdown-item" href="#">스터디</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" th:href="@{/settings/profile}">설정</a>
-                        <form class="form-inline my-2 my-lg-0" th:action="@{/logout}" method="post">
-                            <button class="dropdown-item" type="submit">로그아웃</button>
-                        </form>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </header>
+<div class="container" layout:fragment="content">
+    <h1> 메인페이지입니다.</h1>
 </div>
 
-
-<div class="container">
-    <footer class="footer">
-        <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-            <li class="nav-item"><a href="/" class="nav-link px-2 text-muted">Home</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Features</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Pricing</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">FAQs</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">About</a></li>
-        </ul>
-        <p class="text-center text-muted">Study HAJA &copy; 2021 By codren </p>
-    </footer>
-</div>
-</div>
-</body>
 </html>
