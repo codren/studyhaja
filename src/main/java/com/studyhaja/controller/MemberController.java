@@ -1,4 +1,5 @@
 package com.studyhaja.controller;
+import com.studyhaja.annotation.CurrentMember;
 import com.studyhaja.domain.Member;
 import com.studyhaja.dto.JoinFormDto;
 import com.studyhaja.repository.MemberRepository;
@@ -38,9 +39,9 @@ public class MemberController {
         return "member/joinForm";
     }
 
-    // 회원가입 요청
+    // 회원가입 및 인증 메일 발송
     @PostMapping("/new")
-    public String JoinFormSubmit(@Valid JoinFormDto joinFormDto, Errors errors) {
+    public String JoinFormSubmit(@Valid JoinFormDto joinFormDto, Errors errors, Model model) {
 
         if (errors.hasErrors()) {
             return "member/joinForm";
@@ -48,7 +49,18 @@ public class MemberController {
 
         Member savedMember = memberService.saveMember(joinFormDto);
         memberService.memberLogin(savedMember);
-        return "redirect:/";
+
+        model.addAttribute("email", joinFormDto.getEmail());
+        return "member/emailCheck";
+    }
+
+    // 이메일 인증 화면
+    @GetMapping("/email/check")
+    public String emailCheckPage(@CurrentMember Member member, Model model) {
+
+        model.addAttribute("email",member.getEmail());
+        return "member/emailCheck";
+
     }
 
     // 이메일 검증 요청
@@ -75,5 +87,6 @@ public class MemberController {
 
         return view;
     }
+
 }
 
