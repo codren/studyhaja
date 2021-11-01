@@ -2,6 +2,7 @@ package com.studyhaja.service;
 
 import com.studyhaja.domain.Member;
 import com.studyhaja.dto.JoinFormDto;
+import com.studyhaja.adapter.MemberToUser;
 import com.studyhaja.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -61,7 +62,7 @@ public class MemberService {
 
         SecurityContext securityContext = SecurityContextHolder.getContext();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                member.getNickname(),
+                new MemberToUser(member), // "member" 멤버변수를 가지고 있는 User 객체
                 member.getPassword(),
                 List.of(new SimpleGrantedAuthority("ROLE_USER")));
         securityContext.setAuthentication(token);

@@ -5,6 +5,9 @@
 
 
 <div class="container" layout:fragment="content">
+    <div class="alert alert-warning" role="alert" th:if="${member != null && !member.emailVerified}">
+        회원가입을 완료하려면 <a th:href="@{/member/email/send-token}" class="alert-link">계정 인증 이메일을 확인</a>하세요.
+    </div>
     <h1> 메인페이지입니다.</h1>
 </div>
 
