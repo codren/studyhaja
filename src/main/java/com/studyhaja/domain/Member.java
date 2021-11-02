@@ -29,6 +29,7 @@ public class Member {
     private String password;
     private boolean emailVerified;
     private String emailToken;
+    private LocalDateTime emailTokenGeneratedTime;
 
     // 프로필(마이페이지) 부분
     private LocalDateTime joinedTime;
@@ -55,5 +56,10 @@ public class Member {
 
     public void generateEmailToken() {
         this.emailToken = UUID.randomUUID().toString();
+        this.emailTokenGeneratedTime = LocalDateTime.now();
+    }
+
+    public boolean canSendEmailToken() {
+        return this.emailTokenGeneratedTime.isBefore(LocalDateTime.now().minusHours(1));
     }
 }

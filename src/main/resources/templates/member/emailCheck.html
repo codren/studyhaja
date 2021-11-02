@@ -3,20 +3,18 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/mainLayout}">
 
-<div class="container" layout:fragment="content">
-    <div class="container">
-        <div class="py-5 text-center" th:if="${error != null}">
-            <i class="fa fa-envelope-o fa-5x" aria-hidden="true"></i>
-            <h2 class="py-4"> 인증 메일이 발송되었습니다</h2>
-            <h5 class="lead">메일함(<span class="lead" th:text="${email}">your@email.com</span>)으로 도착한 이메일의 인증 버튼을 클릭하면 회원가입이 완료됩니다</h5>
-            <div class="alert alert-danger mt-3" role="alert" th:text="${error}"></div>
-        </div>
-        <div class="py-5 text-center" th:if="${error == null}">
-            <i class="fa fa-envelope-o fa-5x" aria-hidden="true"></i>
-            <h2 class="py-4"> 인증 메일이 발송되었습니다</h2>
-            <h5 class="lead">메일함(<span class="lead" th:text="${email}">your@email.com</span>)으로 도착한 이메일의 인증 버튼을 클릭하면 회원가입이 완료됩니다</h5>
-            <a class="btn btn-outline-primary mt-4" th:href="@{/member/email/send-token}">인증 메일 재발송</a>
-        </div>
+<div layout:fragment="content">
+    <div class="py-5 text-center" th:if="${error != null}">
+        <i class="fa fa-envelope-o fa-5x" aria-hidden="true"></i>
+        <h2 class="py-4"> 인증 메일이 발송되었습니다</h2>
+        <h5 class="lead">메일함(<span class="lead" th:text="${email}">your@email.com</span>)으로 도착한 이메일의 인증 버튼을 클릭하면 회원가입이 완료됩니다</h5>
+        <div class="alert alert-danger mt-3" role="alert" th:text="${error}"></div>
+    </div>
+    <div class="py-5 text-center" th:if="${error == null}">
+        <i class="fa fa-envelope-o fa-5x" aria-hidden="true"></i>
+        <h2 class="py-4"> 인증 메일이 발송되었습니다</h2>
+        <h5 class="lead">메일함(<span class="lead" th:text="${email}">your@email.com</span>)으로 도착한 이메일의 인증 버튼을 클릭하면 회원가입이 완료됩니다</h5>
+        <a class="btn btn-outline-primary mt-4" th:href="@{/member/email/send-token}">인증 메일 재발송</a>
     </div>
 </div>
 </html>

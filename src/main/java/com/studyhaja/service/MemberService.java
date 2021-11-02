@@ -46,8 +46,8 @@ public class MemberService {
         return newMember;
     }
 
-    // 메일 인증 부분
-    private void sendEmailToken(Member newMember) {
+    // 인증 이메일 발송
+    public void sendEmailToken(Member newMember) {
         newMember.generateEmailToken();
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(newMember.getEmail());

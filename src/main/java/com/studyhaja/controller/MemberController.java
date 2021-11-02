@@ -63,7 +63,21 @@ public class MemberController {
 
     }
 
-    // 이메일 검증 요청
+    // 인증 메일 재발송
+    @GetMapping("/email/send-token")
+    public String sendEmailToken(@CurrentMember Member member, Model model) {
+
+        if (!member.canSendEmailToken()) {
+            model.addAttribute("error", "인증 이메일은 1시간에 한 번만 전송할 수 있습니다.");
+        }
+
+        memberService.sendEmailToken(member);
+        model.addAttribute("email", member.getEmail());
+        return "member/emailCheck";
+    }
+
+
+    // 이메일 인증
     @GetMapping("/email/check-token")
     public String checkEmailToken(String token, String email, Model model) {
 
