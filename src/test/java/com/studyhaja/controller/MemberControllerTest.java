@@ -2,7 +2,9 @@ package com.studyhaja.controller;
 
 import com.studyhaja.adapter.MemberToUser;
 import com.studyhaja.domain.Member;
+import com.studyhaja.dto.JoinFormDto;
 import com.studyhaja.repository.MemberRepository;
+import com.studyhaja.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -37,20 +40,24 @@ class MemberControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private MemberService memberService;
+
+    @Autowired
     private MemberRepository memberRepository;
 
     @MockBean
     private JavaMailSender javaMailSender;
 
     private Member createMember() {
-        Member member = Member.builder()
-                .email("test@naver.com")
-                .nickname("test")
-                .password("12341234")
-                .build();
-        member.generateEmailToken();
+
+        JoinFormDto joinFormDto = new JoinFormDto();
+        joinFormDto.setEmail("test@naver.com");
+        joinFormDto.setNickname("test");
+        joinFormDto.setPassword("12341234");
+        Member member = memberService.saveMember(joinFormDto);
         return member;
     }
+
 
     @Test
     @DisplayName("회원가입 페이지 요청 테스트")
@@ -158,6 +165,51 @@ class MemberControllerTest {
                 .andExpect(model().attributeDoesNotExist("error"))
                 .andExpect(view().name("member/emailCheck"))
                 .andDo(print());
+    }
+
+    @Test
+    @DisplayName("로그인 성공")
+    void loginSuccess() throws Exception {
+
+        createMember();
+        mockMvc.perform(post("/member/login")
+                .param("username", "test")
+                .param("password", "12341234")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(authenticated().withUsername("test"));
+    }
+
+    @Test
+    @DisplayName("로그인 실패")
+    void loginFail() throws Exception {
+
+        createMember();
+        mockMvc.perform(post("/member/login")
+                .param("username", "test@naver.com")
+                .param("password", "123412345")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/member/login/fail"))
+                .andExpect(unauthenticated());
+
+        then(mockMvc.perform(get("/member/login/fail"))
+                .andExpect(model().attributeExists("loginFailMsg"))
+                .andExpect(view().name("member/loginForm")));
+    }
+
+    @Test
+    @DisplayName("로그아웃")
+    @WithMockUser
+    void logout() throws Exception {
+
+        mockMvc.perform(post("/logout")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(unauthenticated());
+
     }
 }
 
