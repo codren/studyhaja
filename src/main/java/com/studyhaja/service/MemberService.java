@@ -11,6 +11,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
@@ -19,7 +22,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class MemberService {
+public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
     private final JavaMailSender javaMailSender;
@@ -69,4 +72,19 @@ public class MemberService {
     }
 
 
+    @Override
+    public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
+
+        Member member = memberRepository.findByEmail(emailOrNickname);
+
+        if (member == null) {
+            member = memberRepository.findByNickname(emailOrNickname);
+        }
+
+        if (member == null) {
+            throw new UsernameNotFoundException(emailOrNickname);
+        }
+
+        return new MemberToUser(member);
+    }
 }

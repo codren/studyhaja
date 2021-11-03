@@ -58,7 +58,7 @@ public class MemberController {
     @GetMapping("/email/check")
     public String emailCheckPage(@CurrentMember Member member, Model model) {
 
-        model.addAttribute("email",member.getEmail());
+        model.addAttribute("email", member.getEmail());
         return "member/emailCheck";
 
     }
@@ -102,5 +102,18 @@ public class MemberController {
         return view;
     }
 
+    // 로그인
+    @GetMapping("/login")
+    public String loginForm() {
+
+        return "member/loginForm";
+    }
+
+    // 로그인 실패
+    @GetMapping("/login/fail")
+    public String memberLoginFail(Model model) {
+        model.addAttribute("loginFailMsg", "회원 정보가 올바르지 않습니다. 이메일(닉네임) 또는 비밀번호를 확인해주세요");
+        return "member/loginForm";
+    }
 }
 
