@@ -10,10 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 
 @Controller
@@ -93,8 +92,7 @@ public class MemberController {
             return view;
         }
 
-        member.completeJoin();
-        memberService.memberLogin(member);
+        memberService.completeJoin(member);
 
         model.addAttribute("nickname", member.getNickname());
         model.addAttribute("numberOfMember", memberRepository.count());
@@ -115,5 +113,21 @@ public class MemberController {
         model.addAttribute("loginFailMsg", "회원 정보가 올바르지 않습니다. 이메일(닉네임) 또는 비밀번호를 확인해주세요");
         return "member/loginForm";
     }
+
+    // 프로필 페이지
+    @GetMapping("/profile/{nickname}")
+    public String memberProfile(@PathVariable String nickname, @CurrentMember Member curMember, Model model) {
+
+        Member savedMember = memberRepository.findByNickname(nickname);
+        if (savedMember == null) {
+            throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
+        }
+
+        model.addAttribute(savedMember);
+        model.addAttribute("isOwner", savedMember.equals(curMember));
+        return "member/profile";
+    }
+
+
 }
 

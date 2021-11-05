@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 public class HomeController {
 
-    private final MemberRepository memberRepository;
-
     @GetMapping(value = "/")
     public String homePage(@CurrentMember Member member, Model model) {
 
