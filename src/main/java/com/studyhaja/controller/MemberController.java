@@ -11,8 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 
 @Controller
@@ -68,8 +66,9 @@ public class MemberController {
 
         if (!member.canSendEmailToken()) {
             model.addAttribute("error", "인증 이메일은 1시간에 한 번만 전송할 수 있습니다.");
-        }
+        } else {
 
+        }
         memberService.sendEmailToken(member);
         model.addAttribute("email", member.getEmail());
         return "member/emailCheck";

@@ -52,6 +52,7 @@ public class MemberService implements UserDetailsService {
     // 인증 이메일 발송
     public void sendEmailToken(Member newMember) {
         newMember.generateEmailToken();
+        memberRepository.save(newMember);
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(newMember.getEmail());
         mailMessage.setSubject("스터디하자, 회원가입 인증");
@@ -71,7 +72,7 @@ public class MemberService implements UserDetailsService {
         securityContext.setAuthentication(token);
     }
 
-
+    @Transactional(readOnly=true)
     @Override
     public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
 
