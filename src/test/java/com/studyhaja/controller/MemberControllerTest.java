@@ -211,5 +211,41 @@ class MemberControllerTest {
                 .andExpect(unauthenticated());
 
     }
+
+    @Test
+    @DisplayName("프로필 페이지 요청 - 주인")
+    void memberProfilePage_owner() throws Exception {
+
+       Member member = createMember();
+       User loginMember = new MemberToUser(member);
+
+        mockMvc.perform(get("/member/profile/" + loginMember.getUsername())
+                .with(user(loginMember)))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("isOwner", true))
+                .andExpect(view().name("member/profile"));
+    }
+
+
+    @Test
+    @DisplayName("프로필 페이지 요청 - 방문자")
+    void memberProfilePage_guest() throws Exception {
+
+        Member member = createMember();
+        User guest = new MemberToUser(member);
+
+        Member owner = Member.builder()
+                        .nickname("user")
+                        .email("user@naver.com")
+                        .password("12341234")
+                        .build();
+        memberRepository.save(owner);
+
+        mockMvc.perform(get("/member/profile/" + owner.getNickname())
+                .with(user(guest)))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("isOwner", false))
+                .andExpect(view().name("member/profile"));
+    }
 }
 
