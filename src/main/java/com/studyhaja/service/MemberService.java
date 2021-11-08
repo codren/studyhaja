@@ -3,6 +3,7 @@ package com.studyhaja.service;
 import com.studyhaja.domain.Member;
 import com.studyhaja.dto.JoinFormDto;
 import com.studyhaja.adapter.MemberToUser;
+import com.studyhaja.dto.ProfileFormDto;
 import com.studyhaja.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -92,5 +93,10 @@ public class MemberService implements UserDetailsService {
     public void completeJoin(Member member) {
         member.completeJoin();
         memberLogin(member);
+    }
+
+    public void updateProfile(Member member, ProfileFormDto profileFormDto) {
+        member.updateProfile(profileFormDto);
+        memberRepository.save(member);
     }
 }

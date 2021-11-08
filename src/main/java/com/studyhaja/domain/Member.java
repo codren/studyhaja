@@ -1,5 +1,6 @@
 package com.studyhaja.domain;
 
+import com.studyhaja.dto.ProfileFormDto;
 import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -61,5 +62,14 @@ public class Member {
 
     public boolean canSendEmailToken() {
         return this.emailTokenGeneratedTime.isBefore(LocalDateTime.now().minusHours(1));
+    }
+
+    public void updateProfile(ProfileFormDto profileFormDto) {
+        this.bio = profileFormDto.getBio();
+        this.refUrl = profileFormDto.getRefUrl();
+        this.occupation = profileFormDto.getOccupation();
+        this.location = profileFormDto.getLocation();
+
+        // TODO 프로필 이미지
     }
 }

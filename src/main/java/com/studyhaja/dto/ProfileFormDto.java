@@ -2,10 +2,12 @@ package com.studyhaja.dto;
 
 import com.studyhaja.domain.Member;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 @Getter @Setter
+@NoArgsConstructor
 public class ProfileFormDto {
 
     @Length(max = 35)
