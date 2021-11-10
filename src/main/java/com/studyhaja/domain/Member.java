@@ -69,7 +69,6 @@ public class Member {
         this.refUrl = profileFormDto.getRefUrl();
         this.occupation = profileFormDto.getOccupation();
         this.location = profileFormDto.getLocation();
-
-        // TODO 프로필 이미지
+        this.profileImg = profileFormDto.getProfileImg();
     }
 }
