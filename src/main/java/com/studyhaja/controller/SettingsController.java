@@ -59,8 +59,9 @@ public class SettingsController {
 
     // 비밀번호 변경 페이지 요청
     @GetMapping("/password")
-    public String changePasswordForm(PasswordFormDto passwordFormDto, Model model) {
+    public String changePasswordForm(@CurrentMember Member member, PasswordFormDto passwordFormDto, Model model) {
 
+        model.addAttribute(member);
         model.addAttribute(passwordFormDto);
         return "/settings/passwordForm";
     }
