@@ -71,4 +71,8 @@ public class Member {
         this.location = profileFormDto.getLocation();
         this.profileImg = profileFormDto.getProfileImg();
     }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

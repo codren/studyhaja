@@ -3,6 +3,7 @@ package com.studyhaja.service;
 import com.studyhaja.domain.Member;
 import com.studyhaja.dto.JoinFormDto;
 import com.studyhaja.adapter.MemberToUser;
+import com.studyhaja.dto.PasswordFormDto;
 import com.studyhaja.dto.ProfileFormDto;
 import com.studyhaja.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -97,6 +98,17 @@ public class MemberService implements UserDetailsService {
 
     public void updateProfile(Member member, ProfileFormDto profileFormDto) {
         member.updateProfile(profileFormDto);
+        memberRepository.save(member);
+    }
+
+    public boolean checkCurrentPassword(String savedPassword, String currentPassword) {
+        return passwordEncoder.matches(currentPassword, savedPassword);
+    }
+
+    public void changePassword(Member member, PasswordFormDto passwordFormDto) {
+        System.out.println(member.getPassword());
+        member.changePassword(passwordEncoder.encode(passwordFormDto.getNewPassword()));
+        System.out.println(member.getPassword());
         memberRepository.save(member);
     }
 }
