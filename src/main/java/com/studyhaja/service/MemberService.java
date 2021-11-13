@@ -3,6 +3,7 @@ package com.studyhaja.service;
 import com.studyhaja.domain.Member;
 import com.studyhaja.dto.JoinFormDto;
 import com.studyhaja.adapter.MemberToUser;
+import com.studyhaja.dto.NotificationDto;
 import com.studyhaja.dto.PasswordFormDto;
 import com.studyhaja.dto.ProfileFormDto;
 import com.studyhaja.repository.MemberRepository;
@@ -80,13 +81,8 @@ public class MemberService implements UserDetailsService {
 
         Member member = memberRepository.findByEmail(emailOrNickname);
 
-        if (member == null) {
-            member = memberRepository.findByNickname(emailOrNickname);
-        }
-
-        if (member == null) {
-            throw new UsernameNotFoundException(emailOrNickname);
-        }
+        if (member == null) { member = memberRepository.findByNickname(emailOrNickname); }
+        if (member == null) { throw new UsernameNotFoundException(emailOrNickname); }
 
         return new MemberToUser(member);
     }
@@ -106,7 +102,6 @@ public class MemberService implements UserDetailsService {
     }
 
     public void changePassword(Member member, PasswordFormDto passwordFormDto) {
-        System.out.println(member.getPassword());
         member.changePassword(passwordEncoder.encode(passwordFormDto.getNewPassword()));
         System.out.println(member.getPassword());
         memberRepository.save(member);

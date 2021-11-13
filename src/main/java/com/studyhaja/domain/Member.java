@@ -1,6 +1,5 @@
 package com.studyhaja.domain;
 
-import com.studyhaja.dto.ProfileFormDto;
 import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -44,11 +43,11 @@ public class Member {
 
     // 알림 설정 부분
     private boolean studyCreatedByEmail;
-    private boolean studyCreatedByWeb;
+    private boolean studyCreatedByWeb = true;
     private boolean studyEnrollResultByEmail;
-    private boolean studyEnrollResultByWeb;
+    private boolean studyEnrollResultByWeb = true;
     private boolean studyUpdateByEmail;
-    private boolean studyUpdateByWeb;
+    private boolean studyUpdateByWeb = true;
 
     public void completeJoin() {
         this.emailVerified = true;
@@ -62,14 +61,6 @@ public class Member {
 
     public boolean canSendEmailToken() {
         return this.emailTokenGeneratedTime.isBefore(LocalDateTime.now().minusHours(1));
-    }
-
-    public void updateProfile(ProfileFormDto profileFormDto) {
-        this.bio = profileFormDto.getBio();
-        this.refUrl = profileFormDto.getRefUrl();
-        this.occupation = profileFormDto.getOccupation();
-        this.location = profileFormDto.getLocation();
-        this.profileImg = profileFormDto.getProfileImg();
     }
 
     public void changePassword(String newPassword) {

@@ -2,6 +2,7 @@ package com.studyhaja.controller;
 
 import com.studyhaja.annotation.CurrentMember;
 import com.studyhaja.domain.Member;
+import com.studyhaja.dto.NotificationDto;
 import com.studyhaja.dto.PasswordFormDto;
 import com.studyhaja.dto.ProfileFormDto;
 import com.studyhaja.service.MemberService;
@@ -63,7 +64,7 @@ public class SettingsController {
 
         model.addAttribute(member);
         model.addAttribute(passwordFormDto);
-        return "/settings/passwordForm";
+        return "settings/passwordForm";
     }
 
     // 비밀번호 변경
@@ -71,18 +72,37 @@ public class SettingsController {
     public String changePassword(@CurrentMember Member member, @Valid PasswordFormDto passwordFormDto, Errors errors,
                                  Model model, RedirectAttributes attributes) {
 
-        if (errors.hasErrors()) {
-            return "/settings/passwordForm";
-        }
+        if (errors.hasErrors()) { return "/settings/passwordForm"; }
 
         // 현재 비밀번호가 일치하는지 판단
         if (!memberService.checkCurrentPassword(member.getPassword(), passwordFormDto.getCurrentPassword())) {
             errors.rejectValue("currentPassword","wrong.value","현재 비밀번호가 일치하지 않습니다");
-            return "/settings/passwordForm";
+            return "settings/passwordForm";
         }
 
         memberService.changePassword(member, passwordFormDto);
         attributes.addFlashAttribute("message", "비밀번호가 변경되었습니다");
         return "redirect:/settings/password";
+    }
+
+    // 알림 설정 페이지 요청
+    @GetMapping("/notifications")
+    public String notificationsForm(@CurrentMember Member member, Model model) {
+
+        model.addAttribute(member);
+        model.addAttribute(modelMapper.map(member, NotificationDto.class));
+        return "settings/notificationsForm";
+    }
+
+    // 알림 설정 변경
+    @PostMapping("/notifications")
+    public String updateNotifications(@CurrentMember Member member, @Valid NotificationDto notificationDto,
+                                      Errors errors, RedirectAttributes redirectAttributes) {
+
+        if (errors.hasErrors()) { return "settings/notificationsForm"; }
+
+        memberService.updateNotifications(member, notificationDto);
+        redirectAttributes.addFlashAttribute("message", "알림 설정을 변경했습니다");
+        return "redirect:/settings/notifications";
     }
 }
