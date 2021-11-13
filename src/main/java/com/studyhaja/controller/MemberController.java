@@ -67,9 +67,9 @@ public class MemberController {
         if (!member.canSendEmailToken()) {
             model.addAttribute("error", "인증 이메일은 1시간에 한 번만 전송할 수 있습니다.");
         } else {
-
+            memberService.sendEmailToken(member);
         }
-        memberService.sendEmailToken(member);
+
         model.addAttribute("email", member.getEmail());
         return "member/emailCheck";
     }
