@@ -19,7 +19,7 @@
                 <h2 class="col-sm-12" th:text="${member.nickname}"></h2>
             </div>
             <div class="row mt-3">
-                <form class="col-sm-6" action="#"
+                <form class="needs-validation col-sm-6" action="#"
                       th:action="@{/settings/profile}" th:object="${profile}" method="post" novalidate>
                     <div class="form-group">
                         <label for="bio">한 줄 소개</label>
@@ -30,7 +30,7 @@
                     <div class="form-group">
                         <label for="url">링크</label>
                         <input id="url" type="url" th:field="*{refUrl}" class="form-control"
-                               placeholder="http://studyhaja.com" aria-describedby="urlHelp" required>
+                               placeholder="http://studyhaja.com" aria-describedby="urlHelp">
                         <small id="urlHelp" class="form-text text-muted">블로그, 유튜브 등 프로필에 공개되는 소셜 링크를 입력하세요</small>
                         <small class="form-text text-danger" th:if="${#fields.hasErrors('refUrl')}" th:errors="*{refUrl}"></small>
                     </div>
@@ -198,5 +198,6 @@
             });
         });
     </script>
+    <div th:replace="fragments/formValidation::formValidation"></div>
 </th:block>
 </html>
