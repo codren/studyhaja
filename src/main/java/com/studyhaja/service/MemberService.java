@@ -8,6 +8,7 @@ import com.studyhaja.dto.PasswordFormDto;
 import com.studyhaja.dto.ProfileFormDto;
 import com.studyhaja.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +31,7 @@ public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final JavaMailSender javaMailSender;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
     // 회원가입
     public Member saveMember(JoinFormDto joinFormDto) {
@@ -66,7 +68,6 @@ public class MemberService implements UserDetailsService {
 
     // 자동 로그인
     public void memberLogin(Member member) {
-
         SecurityContext securityContext = SecurityContextHolder.getContext();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 new MemberToUser(member), // "member" 멤버변수를 가지고 있는 User 객체
@@ -93,7 +94,7 @@ public class MemberService implements UserDetailsService {
     }
 
     public void updateProfile(Member member, ProfileFormDto profileFormDto) {
-        member.updateProfile(profileFormDto);
+        modelMapper.map(profileFormDto, member);
         memberRepository.save(member);
     }
 
@@ -103,7 +104,11 @@ public class MemberService implements UserDetailsService {
 
     public void changePassword(Member member, PasswordFormDto passwordFormDto) {
         member.changePassword(passwordEncoder.encode(passwordFormDto.getNewPassword()));
-        System.out.println(member.getPassword());
+        memberRepository.save(member);
+    }
+
+    public void updateNotifications(Member member, NotificationDto notificationDto) {
+        modelMapper.map(notificationDto, member);
         memberRepository.save(member);
     }
 }

@@ -8,6 +8,7 @@ import com.studyhaja.dto.ProfileFormDto;
 import com.studyhaja.service.MemberService;
 import com.studyhaja.validator.PasswordFormValidator;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -26,6 +27,7 @@ public class SettingsController {
 
     private final MemberService memberService;
     private final PasswordFormValidator passwordFormValidator;
+    private final ModelMapper modelMapper;
 
     @InitBinder("passwordFormDto")
     public void initBinder(WebDataBinder webDataBinder) {
@@ -38,7 +40,7 @@ public class SettingsController {
     public String profileForm(@CurrentMember Member member, Model model) {
 
         model.addAttribute(member);
-        model.addAttribute("profile", new ProfileFormDto(member));
+        model.addAttribute("profile", modelMapper.map(member, ProfileFormDto.class));
         return "settings/profileForm";
     }
 
