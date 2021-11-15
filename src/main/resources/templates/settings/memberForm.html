@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/mainLayout}">
+
+<div class="container" layout:fragment="content">
+    <div class="container">
+        <div class="row mt-5 justify-content-center">
+            <div class="col-2">
+                <div th:replace="fragments/settingsSideBar.html::settingsMenu (currentMenu='member')"></div>
+            </div>
+            <div class="col-8">
+                <div th:if="${message}" class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                    <span th:text="${message}">메시지</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="row">
+                    <h2 class="col-sm-12">닉네임 변경</h2>
+                </div>
+                <div class="row mt-3">
+                    <form class="needs-validation col-6" action="#"
+                          th:action="@{/settings/nickname}" th:object="${nicknameFormDto}" method="post" novalidate>
+                        <div class="form-group">
+                            <label for="newNickname"> 새 닉네임</label>
+                            <input id="newNickname" type="text" th:field="*{newNickname}" class="form-control"
+                                   aria-describedby="newNicknameHelp" placeholder="변경할 닉네임을 입력하세요" required>
+                            <small class="form-text text-danger" th:if="${#fields.hasErrors('newNickname')}"
+                                   th:errors="*{newNickname}">newNickname Error</small>
+                        </div>
+                        <div class="form-group text-center">
+                            <button class="btn btn-outline-primary" type="submit" aria-describedby="submitHelp">변경
+                            </button>
+                        </div>
+                        <div class="mt-5 dropdown-divider"></div>
+                       <button class=" ml-2 mt-2 btn btn-outline-danger disabled">계정 삭제</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+    <div th:replace="fragments/formValidation::formValidation"></div>
+</th:block>
+</html>
