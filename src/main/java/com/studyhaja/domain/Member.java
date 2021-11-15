@@ -30,6 +30,8 @@ public class Member {
     private boolean emailVerified;
     private String emailToken;
     private LocalDateTime emailTokenGeneratedTime;
+    private String emailLoginToken;
+    private LocalDateTime emailLoginTokenGeneratedTime;
 
     // 프로필(마이페이지) 부분
     private LocalDateTime joinedTime;
@@ -65,5 +67,18 @@ public class Member {
 
     public void changePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public boolean canSendEmailLoginToken() {
+
+        if (this.emailLoginTokenGeneratedTime == null) {
+            return true;
+        }
+        return this.emailLoginTokenGeneratedTime.isBefore(LocalDateTime.now().minusHours(1));
+    }
+
+    public void generateEmailLoginToken() {
+        this.emailLoginToken = UUID.randomUUID().toString();
+        this.emailLoginTokenGeneratedTime = LocalDateTime.now();
     }
 }

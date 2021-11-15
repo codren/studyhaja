@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -46,6 +47,7 @@ public class MemberService implements UserDetailsService {
                 .email(joinFormDto.getEmail())
                 .nickname(joinFormDto.getNickname())
                 .password(passwordEncoder.encode(joinFormDto.getPassword()))
+                .emailLoginToken(UUID.randomUUID().toString())
                 .studyCreatedByWeb(true)
                 .studyEnrollResultByWeb(true)
                 .studyUpdateByWeb(true)
@@ -110,5 +112,16 @@ public class MemberService implements UserDetailsService {
     public void updateNotifications(Member member, NotificationDto notificationDto) {
         modelMapper.map(notificationDto, member);
         memberRepository.save(member);
+    }
+
+    public void sendEmailLoginToken(Member member) {
+        member.generateEmailLoginToken();
+        memberRepository.save(member);
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(member.getEmail());
+        mailMessage.setSubject("스터디하자, 이메일 인증을 통한 로그인");
+        mailMessage.setText("/member/email/check-login-token?token=" + member.getEmailLoginToken() +
+                "&email=" + member.getEmail());
+        javaMailSender.send(mailMessage);
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 
 @Controller
@@ -127,6 +128,52 @@ public class MemberController {
         return "member/profile";
     }
 
+    // 이메일 인증 로그인 페이지 요청
+    @GetMapping("/email/login")
+    public String emailLoginForm() {
+        return "member/emailLoginForm";
+    }
 
+    // 이메일 인증 로그인 토큰 전송
+    @PostMapping("email/send-login-token")
+    public String emailLoginTokenSend(String email, Model model, RedirectAttributes redirectAttributes) {
+
+        Member member = memberRepository.findByEmail(email);
+        String view = "redirect:/member/email/login";
+
+        if (member == null) {
+            redirectAttributes.addFlashAttribute("error", "일치하는 이메일이 존재하지 않습니다");
+            return view;
+        }
+
+        if (!member.canSendEmailLoginToken()) {
+            redirectAttributes.addFlashAttribute("error",
+                    "로그인을 위한 인증 이메일은 1시간에 한 번만 전송할 수 있습니다");
+            return view;
+        }
+
+        memberService.sendEmailLoginToken(member);
+        redirectAttributes.addFlashAttribute("message", "로그인을 위한 인증 메일을 전송했습니다");
+        return view;
+    }
+
+    // 이메일 인증 로그인 요청
+    @GetMapping("email/check-login-token")
+    public String checkEmailLoginToken(String token, String email, Model model) {
+
+        Member member = memberRepository.findByEmail(email);
+
+        if (member == null) {
+            model.addAttribute("error", "wrongEmail");
+        }
+
+        if (!token.equals(member.getEmailLoginToken())) {
+            model.addAttribute("error", "wrongToken");
+        }
+
+        memberService.memberLogin(member);
+        model.addAttribute(member);
+        return "member/emailLoginSuccess";
+    }
 }
 
