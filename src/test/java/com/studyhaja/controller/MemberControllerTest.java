@@ -247,5 +247,78 @@ class MemberControllerTest {
                 .andExpect(model().attribute("isOwner", false))
                 .andExpect(view().name("member/profile"));
     }
+
+    @Test
+    @DisplayName("로그인을 위한 인증 이메일 요청 - 입력값 정상")
+    void emailLoginTokenRequest_valid_input() throws Exception {
+
+        Member member = createMember();
+
+        mockMvc.perform(post("/member/email/send-login-token")
+                .with(csrf())
+                .param("email", member.getEmail()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/member/email/login"))
+                .andExpect(flash().attributeExists("message"));
+    }
+
+    @Test
+    @DisplayName("로그인을 위한 인증 이메일 요청 - 입력값 오류")
+    void emailLoginTokenRequest_invalid_input() throws Exception {
+
+        Member member = createMember();
+
+        // 이메일 존재하지 않음
+        mockMvc.perform(post("/member/email/send-login-token")
+                .with(csrf())
+                .param("email", "wrong@email.com"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/member/email/login"))
+                .andExpect(flash().attributeExists("error"));
+
+        member.setEmailLoginTokenGeneratedTime(LocalDateTime.now());
+
+        // 로그인 인증 이메일을 1시간내에 보낸적이 있음
+        mockMvc.perform(post("/member/email/send-login-token")
+                .with(csrf())
+                .param("email", "test@naver.com"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/member/email/login"))
+                .andExpect(flash().attributeExists("error"));
+    }
+
+    @Test
+    @DisplayName("이메일 인증 로그인  - 입력값 정상")
+    void checkEmailLoginToken_valid_input() throws Exception {
+
+        Member member = createMember();
+        memberService.sendEmailLoginToken(member);
+
+        mockMvc.perform(get("/member/email/check-login-token")
+                .param("email", member.getEmail())
+                .param("token", member.getEmailLoginToken()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("member/emailLoginSuccess"))
+                .andExpect(model().attributeExists("member"))
+                .andExpect(authenticated());
+    }
+
+    @Test
+    @DisplayName("이메일 인증 로그인  - 입력값 오류")
+    void checkEmailLoginToken_invalid_input() throws Exception {
+
+        Member member = createMember();
+        memberService.sendEmailLoginToken(member);
+
+        mockMvc.perform(get("/member/email/check-login-token")
+                .param("email", member.getEmail())
+                .param("token", "wrongToken"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("member/emailLoginSuccess"))
+                .andExpect(model().attributeDoesNotExist("member"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(unauthenticated());
+
+    }
 }
 
