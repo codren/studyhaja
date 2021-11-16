@@ -161,19 +161,22 @@ public class MemberController {
     @GetMapping("email/check-login-token")
     public String checkEmailLoginToken(String token, String email, Model model) {
 
+        String view = "member/emailLoginSuccess";
         Member member = memberRepository.findByEmail(email);
 
         if (member == null) {
-            model.addAttribute("error", "wrongEmail");
+            model.addAttribute("error", "이메일 인증이 올바르지 않습니다");
+            return view;
         }
 
         if (!token.equals(member.getEmailLoginToken())) {
-            model.addAttribute("error", "wrongToken");
+            model.addAttribute("error", "이메일 인증이 올바르지 않습니다");
+            return view;
         }
 
         memberService.memberLogin(member);
         model.addAttribute(member);
-        return "member/emailLoginSuccess";
+        return view;
     }
 }
 
