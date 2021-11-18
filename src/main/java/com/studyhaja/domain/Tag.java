@@ -17,7 +17,7 @@ public class Tag {
     @Column(name = "tag_id")
     private Long id;
 
-    @Column(name = "tag_name")
+    @Column(name = "tag_name", unique = true)
     private String tagName;
 
 }
