@@ -107,4 +107,12 @@ public class SettingsController {
         redirectAttributes.addFlashAttribute("message", "알림 설정을 변경했습니다");
         return "redirect:/settings/notifications";
     }
+
+    // 관심있는 스터디 주제 태그 등록 페이지 요청
+    @GetMapping("/tags")
+    public String tagsForm(@CurrentMember Member member, Model model) {
+
+        model.addAttribute(member);
+        return "settings/tagsForm";
+    }
 }
