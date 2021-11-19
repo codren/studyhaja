@@ -28,25 +28,31 @@
 <th:block layout:fragment="script">
     <div th:replace="fragments/formValidation::formValidation"></div>
     <script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
+    <script type="application/javascript" th:inline="javascript">
+        $(function () {
+            var csrfToken = /*[[${_csrf.token}]]*/ null;
+            var csrfHeader = /*[[${_csrf.headerName}]]*/ null;
+            $(document).ajaxSend(function (e, xhr, options) {
+                xhr.setRequestHeader(csrfHeader, csrfToken);
+            });
+        });
+    </script>
     <script type="application/javascript">
         $(function () {
             function tagRequest(url, tagName) {
-                let param = JSON.stringify({'tagName': tagName})
-                url = "/settings/tags" + url
                 $.ajax({
-                    url: url,
-                    type: "POST",
-                    contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    data: param,
                     autocomplete: {
                         enabled: true,
                         rightKey: true,
                     },
-                    success : function (data, status) {
+                    contentType: "application/json; charset=utf-8",
+                    method: "POST",
+                    url: "/settings/tags" + url,
+                    data: JSON.stringify({'tagName': tagName})
+                }).done(function (data, status) {
                     console.log("${data} and status is ${status}");
-                    }
-                })
+                });
             }
 
             function onAdd(e) {
@@ -60,7 +66,7 @@
             var tagInput = document.querySelector("#tags");
             var tagify = new Tagify(tagInput, {
                 pattern: /^.{0,20}$/,
-                dropdown : {
+                dropdown: {
                     enabled: 1, // suggest tags after a single character input
                 } // map tags
             });

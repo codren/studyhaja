@@ -1,12 +1,14 @@
 package com.studyhaja.service;
 
 import com.studyhaja.domain.Member;
+import com.studyhaja.domain.Tag;
 import com.studyhaja.dto.JoinFormDto;
 import com.studyhaja.adapter.MemberToUser;
 import com.studyhaja.dto.NotificationDto;
 import com.studyhaja.dto.PasswordFormDto;
 import com.studyhaja.dto.ProfileFormDto;
 import com.studyhaja.repository.MemberRepository;
+import com.studyhaja.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.mail.SimpleMailMessage;
@@ -22,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -30,6 +33,7 @@ import java.util.UUID;
 public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
+    private final TagRepository tagRepository;
     private final JavaMailSender javaMailSender;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
@@ -123,5 +127,11 @@ public class MemberService implements UserDetailsService {
         mailMessage.setText("/member/email/check-login-token?token=" + member.getEmailLoginToken() +
                 "&email=" + member.getEmail());
         javaMailSender.send(mailMessage);
+    }
+
+    public void addTag(Member member, Tag tag) {
+
+        Optional<Member> savedMember =  memberRepository.findById(member.getId());
+        savedMember.get().getTags().add(tag);
     }
 }

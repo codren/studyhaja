@@ -2,21 +2,22 @@ package com.studyhaja.controller;
 
 import com.studyhaja.annotation.CurrentMember;
 import com.studyhaja.domain.Member;
+import com.studyhaja.domain.Tag;
 import com.studyhaja.dto.NotificationDto;
 import com.studyhaja.dto.PasswordFormDto;
 import com.studyhaja.dto.ProfileFormDto;
+import com.studyhaja.dto.TagsFormDto;
+import com.studyhaja.repository.TagRepository;
 import com.studyhaja.service.MemberService;
 import com.studyhaja.validator.PasswordFormValidator;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 
@@ -26,6 +27,7 @@ import javax.validation.Valid;
 public class SettingsController {
 
     private final MemberService memberService;
+    private final TagRepository tagRepository;
     private final PasswordFormValidator passwordFormValidator;
     private final ModelMapper modelMapper;
 
@@ -114,5 +116,18 @@ public class SettingsController {
 
         model.addAttribute(member);
         return "settings/tagsForm";
+    }
+
+    @PostMapping("/tags/add")
+    @ResponseBody
+    public ResponseEntity addTag(@CurrentMember Member member,
+                                 @RequestBody TagsFormDto tagsFormDto, Model model) {
+
+        String tagName = tagsFormDto.getTagName();
+        Tag tag = tagRepository.findByTagName(tagName).orElseGet(
+                () -> tagRepository.save(Tag.builder().tagName(tagName).build()));
+
+        memberService.addTag(member, tag);
+        return ResponseEntity.ok().build();
     }
 }

@@ -52,7 +52,7 @@ public class Member {
     private boolean studyUpdateByEmail;
     private boolean studyUpdateByWeb = true;
 
-    @ManyToMany
+    @ManyToMany()
     private Set<Tag> tags;
 
     public void completeJoin() {
