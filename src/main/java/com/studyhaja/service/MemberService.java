@@ -141,4 +141,10 @@ public class MemberService implements UserDetailsService {
         Optional<Member> savedMember = memberRepository.findById(member.getId());
         return savedMember.orElseThrow().getTags();
     }
+
+    public void removeTag(Member member, Tag tag) {
+
+        Optional<Member> savedMember = memberRepository.findById(member.getId());
+        savedMember.get().getTags().remove(tag);
+    }
 }

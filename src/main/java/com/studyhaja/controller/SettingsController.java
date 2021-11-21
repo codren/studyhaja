@@ -20,6 +20,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -132,6 +133,22 @@ public class SettingsController {
                 () -> tagRepository.save(Tag.builder().tagName(tagName).build()));
 
         memberService.addTag(member, tag);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("tags/remove")
+    @ResponseBody
+    public ResponseEntity removeTag(@CurrentMember Member member,
+                                    @RequestBody TagsFormDto tagsFormDto, Model model) {
+
+        String tagName = tagsFormDto.getTagName();
+        Optional<Tag> tag = tagRepository.findByTagName(tagName);
+
+        if (tag.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        memberService.removeTag(member, tag.get());
         return ResponseEntity.ok().build();
     }
 }
