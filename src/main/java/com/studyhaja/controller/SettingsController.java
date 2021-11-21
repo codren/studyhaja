@@ -20,6 +20,8 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -115,6 +117,8 @@ public class SettingsController {
     public String tagsForm(@CurrentMember Member member, Model model) {
 
         model.addAttribute(member);
+        Set<Tag> tags = memberService.getTags(member);
+        model.addAttribute("tags", tags.stream().map(Tag::getTagName).collect(Collectors.toList()));
         return "settings/tagsForm";
     }
 

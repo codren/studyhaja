@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -133,5 +134,11 @@ public class MemberService implements UserDetailsService {
 
         Optional<Member> savedMember =  memberRepository.findById(member.getId());
         savedMember.get().getTags().add(tag);
+    }
+
+    public Set<Tag> getTags(Member member) {
+
+        Optional<Member> savedMember = memberRepository.findById(member.getId());
+        return savedMember.orElseThrow().getTags();
     }
 }
