@@ -123,7 +123,7 @@ public class SettingsController {
         return "settings/tagsForm";
     }
 
-    @PostMapping("/tags/add")
+    @PostMapping("/tags")
     @ResponseBody
     public ResponseEntity addTag(@CurrentMember Member member,
                                  @RequestBody TagsFormDto tagsFormDto, Model model) {
@@ -136,7 +136,7 @@ public class SettingsController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("tags/remove")
+    @DeleteMapping("tags")
     @ResponseBody
     public ResponseEntity removeTag(@CurrentMember Member member,
                                     @RequestBody TagsFormDto tagsFormDto, Model model) {

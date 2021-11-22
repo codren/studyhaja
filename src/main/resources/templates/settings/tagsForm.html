@@ -40,7 +40,7 @@
     </script>
     <script type="application/javascript">
         $(function () {
-            function tagRequest(url, tagName) {
+            function tagRequest(method, tagName) {
                 $.ajax({
                     dataType: "json",
                     autocomplete: {
@@ -48,8 +48,8 @@
                         rightKey: true,
                     },
                     contentType: "application/json; charset=utf-8",
-                    method: "POST",
-                    url: "/settings/tags" + url,
+                    method: method,
+                    url: "/settings/tags",
                     data: JSON.stringify({'tagName': tagName})
                 }).done(function (data, status) {
                     console.log("${data} and status is ${status}");
@@ -57,11 +57,11 @@
             }
 
             function onAdd(e) {
-                tagRequest("/add", e.detail.data.value);
+                tagRequest("POST", e.detail.data.value);
             }
 
             function onRemove(e) {
-                tagRequest("/remove", e.detail.data.value);
+                tagRequest("DELETE", e.detail.data.value);
             }
 
             var tagInput = document.querySelector("#tags");
