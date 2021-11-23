@@ -99,7 +99,7 @@ class SettingsControllerTest {
                 .param("newPasswordConfirm", "22222222")
                 .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("/settings/passwordForm"))
+                .andExpect(view().name("settings/passwordForm"))
                 .andExpect(model().attributeHasFieldErrors("passwordFormDto", "currentPassword"))
                 .andReturn().getModelAndView();
 
