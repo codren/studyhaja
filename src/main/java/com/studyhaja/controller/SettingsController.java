@@ -1,5 +1,7 @@
 package com.studyhaja.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyhaja.annotation.CurrentMember;
 import com.studyhaja.domain.Member;
 import com.studyhaja.domain.Tag;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +36,7 @@ public class SettingsController {
     private final TagRepository tagRepository;
     private final PasswordFormValidator passwordFormValidator;
     private final ModelMapper modelMapper;
+    private final ObjectMapper objectMapper;
 
     @InitBinder("passwordFormDto")
     public void initBinder(WebDataBinder webDataBinder) {
@@ -114,15 +118,21 @@ public class SettingsController {
     }
 
     // 관심있는 스터디 주제 태그 등록 페이지 요청
+    // 태그 조회
     @GetMapping("/tags")
-    public String tagsForm(@CurrentMember Member member, Model model) {
+    public String tagsForm(@CurrentMember Member member, Model model) throws JsonProcessingException {
 
         model.addAttribute(member);
+
         Set<Tag> tags = memberService.getTags(member);
         model.addAttribute("tags", tags.stream().map(Tag::getTagName).collect(Collectors.toList()));
+
+        List<String> allTags = tagRepository.findAll().stream().map(Tag::getTagName).collect(Collectors.toList());
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(allTags));
         return "settings/tagsForm";
     }
 
+    // 태그 등록
     @PostMapping("/tags")
     @ResponseBody
     public ResponseEntity addTag(@CurrentMember Member member,
@@ -136,6 +146,7 @@ public class SettingsController {
         return ResponseEntity.ok().build();
     }
 
+    // 태그 삭제
     @DeleteMapping("tags")
     @ResponseBody
     public ResponseEntity removeTag(@CurrentMember Member member,

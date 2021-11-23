@@ -18,6 +18,7 @@
                         <div class="mt-2 alert alert-info" role="alert">
                             관심있는 스터디 주제를 입력하세요. 태그를 입력하고 콤마(,) 또는 엔터를 입력하면 등록됩니다.
                         </div>
+                        <div id="whitelist" th:text="${whitelist}" hidden></div>
                         <input id="tags" type="text" name="tags" th:value="${#strings.listJoin(tags,',')}"
                                class="tagify-outside" aria-describedby="tagHelp"/>
                     </div>
@@ -67,6 +68,7 @@
             var tagInput = document.querySelector("#tags");
             var tagify = new Tagify(tagInput, {
                 pattern: /^.{0,20}$/,
+                whitelist: JSON.parse(document.querySelector("#whitelist").textContent),
                 dropdown: {
                     enabled: 1, // suggest tags after a single character input
                 } // map tags
