@@ -42,23 +42,15 @@ public class MemberService implements UserDetailsService {
     // 회원가입
     public Member saveMember(JoinFormDto joinFormDto) {
         Member newMember = createMember(joinFormDto);
-        sendEmailToken(newMember);
         return newMember;
     }
 
     // 회원객체 생성
     private Member createMember(JoinFormDto joinFormDto) {
-        Member member = Member.builder()
-                .email(joinFormDto.getEmail())
-                .nickname(joinFormDto.getNickname())
-                .password(passwordEncoder.encode(joinFormDto.getPassword()))
-                .emailLoginToken(UUID.randomUUID().toString())
-                .studyCreatedByWeb(true)
-                .studyEnrollResultByWeb(true)
-                .studyUpdateByWeb(true)
-                .build();
-        Member newMember = memberRepository.save(member);
-        return newMember;
+        joinFormDto.setPassword(passwordEncoder.encode(joinFormDto.getPassword()));
+        Member member = modelMapper.map(joinFormDto, Member.class);
+        sendEmailToken(member);
+        return memberRepository.save(member);
     }
 
     // 인증 이메일 발송
