@@ -1,8 +1,12 @@
 package com.studyhaja.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyhaja.WithMember;
 import com.studyhaja.domain.Member;
+import com.studyhaja.domain.Tag;
+import com.studyhaja.dto.TagsFormDto;
 import com.studyhaja.repository.MemberRepository;
+import com.studyhaja.repository.TagRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -10,16 +14,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.ModelResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
-
+import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -36,6 +42,12 @@ class SettingsControllerTest {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Autowired
+    TagRepository tagRepository;
 
     @Test
     @DisplayName("회원 프로필 수정 - 입력값 정상")
@@ -122,5 +134,47 @@ class SettingsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("/settings/passwordForm"))
                 .andExpect(model().attributeHasFieldErrors("passwordFormDto", "newPassword"));
+    }
+
+    @Test
+    @DisplayName("태그 추가")
+    @WithMember(value = "test")
+    public void addTagTest() throws Exception {
+
+        TagsFormDto tagsFormDto = new TagsFormDto();
+        tagsFormDto.setTagName("test");
+
+        mockMvc.perform(post("/settings/tags")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tagsFormDto)))
+                .andExpect(status().isOk());
+
+        Optional<Tag> tag = tagRepository.findByTagName("test");
+        assertNotNull(tag.get());
+        assertTrue(memberRepository.findByNickname("test").getTags().contains(tag.get()));
+    }
+
+     @Test
+    @DisplayName("태그 삭제")
+    @WithMember(value = "test")
+    public void removeTagTest() throws Exception {
+
+        Member member = memberRepository.findByNickname("test");
+        Tag tag = tagRepository.save(Tag.builder().tagName("test").build());
+        member.getTags().add(tag);
+
+        assertTrue(member.getTags().contains(tag));
+
+        TagsFormDto tagsFormDto = new TagsFormDto();
+        tagsFormDto.setTagName("test");
+
+        mockMvc.perform(delete("/settings/tags")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tagsFormDto)))
+                .andExpect(status().isOk());
+
+        assertFalse(member.getTags().contains("test"));
     }
 }
