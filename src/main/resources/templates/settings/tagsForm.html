@@ -69,6 +69,7 @@
             var tagify = new Tagify(tagInput, {
                 pattern: /^.{0,20}$/,
                 whitelist: JSON.parse(document.querySelector("#whitelist").textContent),
+                backspace: false,   // 백스페이스키를 누를 시 마지막에 등록된 태그를 삭제하는 기능 false
                 dropdown: {
                     enabled: 1, // suggest tags after a single character input
                 } // map tags
