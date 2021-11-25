@@ -31,7 +31,7 @@ public class ZoneService {
             List<Zone> zones = Files.readAllLines(resource.getFile().toPath(), StandardCharsets.UTF_8).stream()
                     .map(line -> {
                         String[] split = line.split(",");
-                        return Zone.builder().city(split[0]).localName0fCity(split[1]).province(split[2]).build();
+                        return Zone.builder().city(split[0]).localNameOfCity(split[1]).province(split[2]).build();
                     }).collect(Collectors.toList());
             zoneRepository.saveAll(zones);
         }
