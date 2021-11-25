@@ -43,7 +43,7 @@
         $(function () {
             function tagRequest(method, tagName) {
                 $.ajax({
-                    dataType: "json",
+                    dataType: "text",
                     autocomplete: {
                         enabled: true,
                         rightKey: true,
@@ -53,7 +53,7 @@
                     url: "/settings/tags",
                     data: JSON.stringify({'tagName': tagName})
                 }).done(function (data, status) {
-                    console.log("${data} and status is ${status}");
+                    console.log(JSON.stringify({'tagName': tagName}) + " and status is " + status);
                 });
             }
 
