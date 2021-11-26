@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyhaja.annotation.CurrentMember;
 import com.studyhaja.domain.Member;
 import com.studyhaja.domain.Tag;
-import com.studyhaja.dto.NotificationDto;
-import com.studyhaja.dto.PasswordFormDto;
-import com.studyhaja.dto.ProfileFormDto;
-import com.studyhaja.dto.TagsFormDto;
+import com.studyhaja.domain.Zone;
+import com.studyhaja.dto.*;
 import com.studyhaja.repository.TagRepository;
+import com.studyhaja.repository.ZoneRepository;
 import com.studyhaja.service.MemberService;
 import com.studyhaja.validator.PasswordFormValidator;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +36,7 @@ public class SettingsController {
     private final PasswordFormValidator passwordFormValidator;
     private final ModelMapper modelMapper;
     private final ObjectMapper objectMapper;
+    private final ZoneRepository zoneRepository;
 
     @InitBinder("passwordFormDto")
     public void initBinder(WebDataBinder webDataBinder) {
@@ -160,6 +160,51 @@ public class SettingsController {
         }
 
         memberService.removeTag(member, tag.get());
+        return ResponseEntity.ok().build();
+    }
+
+    // 주요 활동 지역 등록 페이지 요청
+    // 주요 활동 지역 조회
+    @GetMapping("zones")
+    public String zonesForm(@CurrentMember Member member, Model model) throws JsonProcessingException {
+
+        model.addAttribute(member);
+
+        Set<Zone> zones = memberService.getZones(member);
+        model.addAttribute("zones", zones.stream().map(Zone::getLocalNameOfCity).collect(Collectors.toList()));
+
+        List<String> allZones = zoneRepository.findAll()
+                .stream().map(Zone::getLocalNameOfCity).collect(Collectors.toList());
+
+        model.addAttribute("whitelist", objectMapper.writeValueAsString(allZones));
+        return "settings/zonesForm";
+    }
+
+    @PostMapping("zones")
+    @ResponseBody
+    public ResponseEntity addZone(@CurrentMember Member member, @RequestBody ZonesFormDto zonesFormDto) {
+
+        Zone zone = zoneRepository.findByLocalNameOfCity(zonesFormDto.getZoneName());
+
+        if(zone == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        memberService.addZone(member, zone);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("zones")
+    @ResponseBody
+    public ResponseEntity deleteZone(@CurrentMember Member member, @RequestBody ZonesFormDto zonesFormDto) {
+
+        Zone zone = zoneRepository.findByLocalNameOfCity(zonesFormDto.getZoneName());
+
+        if(zone == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        memberService.removeZone(member, zone);
         return ResponseEntity.ok().build();
     }
 }

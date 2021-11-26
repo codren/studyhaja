@@ -2,6 +2,7 @@ package com.studyhaja.service;
 
 import com.studyhaja.domain.Member;
 import com.studyhaja.domain.Tag;
+import com.studyhaja.domain.Zone;
 import com.studyhaja.dto.JoinFormDto;
 import com.studyhaja.adapter.MemberToUser;
 import com.studyhaja.dto.NotificationDto;
@@ -138,5 +139,23 @@ public class MemberService implements UserDetailsService {
 
         Optional<Member> savedMember = memberRepository.findById(member.getId());
         savedMember.get().getTags().remove(tag);
+    }
+
+    public Set<Zone> getZones(Member member) {
+
+        Optional<Member> savedMember = memberRepository.findById(member.getId());
+        return savedMember.get().getZones();
+    }
+
+    public void addZone(Member member, Zone zone) {
+
+        Optional<Member> savedMember = memberRepository.findById(member.getId());
+        savedMember.get().getZones().add(zone);
+    }
+
+    public void removeZone(Member member, Zone zone) {
+
+        Optional<Member> savedMember = memberRepository.findById(member.getId());
+        savedMember.get().getZones().remove(zone);
     }
 }

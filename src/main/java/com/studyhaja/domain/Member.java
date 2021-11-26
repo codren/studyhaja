@@ -56,6 +56,9 @@ public class Member {
     @ManyToMany()
     private Set<Tag> tags = new HashSet<>();
 
+    @ManyToMany()
+    private Set<Zone> zones = new HashSet<>();
+
     public void completeJoin() {
         this.emailVerified = true;
         this.joinedTime = LocalDateTime.now();
