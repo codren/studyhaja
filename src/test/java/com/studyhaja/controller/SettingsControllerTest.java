@@ -1,12 +1,16 @@
 package com.studyhaja.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyhaja.WithMember;
 import com.studyhaja.domain.Member;
 import com.studyhaja.domain.Tag;
+import com.studyhaja.domain.Zone;
 import com.studyhaja.dto.TagsFormDto;
+import com.studyhaja.dto.ZonesFormDto;
 import com.studyhaja.repository.MemberRepository;
 import com.studyhaja.repository.TagRepository;
+import com.studyhaja.repository.ZoneRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -48,6 +52,9 @@ class SettingsControllerTest {
 
     @Autowired
     TagRepository tagRepository;
+
+    @Autowired
+    ZoneRepository zoneRepository;
 
     @Test
     @DisplayName("회원 프로필 수정 - 입력값 정상")
@@ -176,5 +183,54 @@ class SettingsControllerTest {
                 .andExpect(status().isOk());
 
         assertFalse(member.getTags().contains("test"));
+    }
+
+    public Zone createZone() {
+
+        Zone zone = Zone.builder().city("test").localNameOfCity("테스트시").province("테스트주").build();
+        zoneRepository.save(zone);
+        return zone;
+    }
+
+    @Test
+    @DisplayName("활동 지역 추가")
+    @WithMember(value = "test")
+    public void addZoneTest() throws Exception {
+
+        Zone zone = createZone();
+        ZonesFormDto zonesFormDto = new ZonesFormDto();
+        zonesFormDto.setZoneName(zone.getLocalNameOfCity());
+
+        mockMvc.perform(post("/settings/zones")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(zonesFormDto)))
+                .andExpect(status().isOk());
+
+        Member member = memberRepository.findByNickname("test");
+        assertTrue(member.getZones().contains(zone));
+    }
+
+    @Test
+    @DisplayName("활동 지역 삭제")
+    @WithMember(value = "test")
+    public void removeZoneTest() throws Exception {
+
+        Zone zone = createZone();
+        ZonesFormDto zonesFormDto = new ZonesFormDto();
+        zonesFormDto.setZoneName(zone.getLocalNameOfCity());
+
+        Member member = memberRepository.findByNickname("test");
+        member.getZones().add(zone);
+
+        assertTrue(member.getZones().contains(zone));
+
+        mockMvc.perform(delete("/settings/zones")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(zonesFormDto)))
+                .andExpect(status().isOk());
+
+        assertFalse(member.getZones().contains(zone));
     }
 }
