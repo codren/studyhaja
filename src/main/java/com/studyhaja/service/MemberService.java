@@ -3,17 +3,11 @@ package com.studyhaja.service;
 import com.studyhaja.domain.Member;
 import com.studyhaja.domain.Tag;
 import com.studyhaja.domain.Zone;
-import com.studyhaja.dto.JoinFormDto;
+import com.studyhaja.dto.*;
 import com.studyhaja.adapter.MemberToUser;
-import com.studyhaja.dto.NotificationDto;
-import com.studyhaja.dto.PasswordFormDto;
-import com.studyhaja.dto.ProfileFormDto;
 import com.studyhaja.repository.MemberRepository;
-import com.studyhaja.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -27,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -35,8 +28,7 @@ import java.util.UUID;
 public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
-    private final TagRepository tagRepository;
-    private final JavaMailSender javaMailSender;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
@@ -57,13 +49,13 @@ public class MemberService implements UserDetailsService {
     // 인증 이메일 발송
     public void sendEmailToken(Member newMember) {
         newMember.generateEmailToken();
-        memberRepository.save(newMember);
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(newMember.getEmail());
-        mailMessage.setSubject("스터디하자, 회원가입 인증");
-        mailMessage.setText("/member/email/check-token?token=" + newMember.getEmailToken() +
-                "&email=" + newMember.getEmail());
-        javaMailSender.send(mailMessage);
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(newMember.getEmail())
+                .subject("스터디하자, 회원가입 인증")
+                .content("/member/email/check-token?token=" + newMember.getEmailToken() +
+                "&email=" + newMember.getEmail())
+                .build();
+        emailService.send(emailMessage);
     }
 
     // 자동 로그인
@@ -112,27 +104,28 @@ public class MemberService implements UserDetailsService {
         memberRepository.save(member);
     }
 
+    // 비밀번호 없이 로그인을 위한 인증 메일 토큰 전송
     public void sendEmailLoginToken(Member member) {
         member.generateEmailLoginToken();
-        memberRepository.save(member);
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(member.getEmail());
-        mailMessage.setSubject("스터디하자, 이메일 인증을 통한 로그인");
-        mailMessage.setText("/member/email/check-login-token?token=" + member.getEmailLoginToken() +
-                "&email=" + member.getEmail());
-        javaMailSender.send(mailMessage);
-    }
-
-    public void addTag(Member member, Tag tag) {
-
-        Optional<Member> savedMember =  memberRepository.findById(member.getId());
-        savedMember.get().getTags().add(tag);
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(member.getEmail())
+                .subject("스터디하자, 이메일 인증을 통한 로그인")
+                .content("/member/email/check-login-token?token=" + member.getEmailLoginToken() +
+                        "&email=" + member.getEmail())
+                .build();
+        emailService.send(emailMessage);
     }
 
     public Set<Tag> getTags(Member member) {
 
         Optional<Member> savedMember = memberRepository.findById(member.getId());
         return savedMember.orElseThrow().getTags();
+    }
+
+    public void addTag(Member member, Tag tag) {
+
+        Optional<Member> savedMember =  memberRepository.findById(member.getId());
+        savedMember.get().getTags().add(tag);
     }
 
     public void removeTag(Member member, Tag tag) {

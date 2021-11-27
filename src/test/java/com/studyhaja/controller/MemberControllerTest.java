@@ -2,8 +2,10 @@ package com.studyhaja.controller;
 
 import com.studyhaja.adapter.MemberToUser;
 import com.studyhaja.domain.Member;
+import com.studyhaja.dto.EmailMessage;
 import com.studyhaja.dto.JoinFormDto;
 import com.studyhaja.repository.MemberRepository;
+import com.studyhaja.service.EmailService;
 import com.studyhaja.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,7 +48,7 @@ class MemberControllerTest {
     private MemberRepository memberRepository;
 
     @MockBean
-    private JavaMailSender javaMailSender;
+    private EmailService emailService;
 
     private Member createMember() {
 
@@ -87,8 +89,8 @@ class MemberControllerTest {
         assertNotNull(member);
         assertNotEquals(member.getPassword(), "12341234");
 
-        // javaMailSender 구현체가 send() 메소드를 통해서 SimpleMailMessage.class 클래스의 아무(any) 인스턴스를 보내야함
-        then(javaMailSender).should().send(any(SimpleMailMessage.class));
+        // emailService 구현체가 send() 메소드를 통해서 EmailMessage 클래스의 아무(any) 인스턴스를 보내야함
+        then(emailService).should().send(any(EmailMessage.class));
     }
 
     @Test
