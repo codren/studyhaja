@@ -8,6 +8,7 @@ import com.studyhaja.adapter.MemberToUser;
 import com.studyhaja.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -18,6 +19,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.context.IContext;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +36,10 @@ public class MemberService implements UserDetailsService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+    private final TemplateEngine templateEngine;
+
+    @Value("${app.host}")
+    String host;
 
     // 회원가입
     public Member saveMember(JoinFormDto joinFormDto) {
@@ -48,12 +57,21 @@ public class MemberService implements UserDetailsService {
 
     // 인증 이메일 발송
     public void sendEmailToken(Member newMember) {
+
         newMember.generateEmailToken();
+
+        // 템플릿으로 넘기는 Model과 동일한 역할
+        Context context = new Context();
+        context.setVariable("link","/member/email/check-token?token=" + newMember.getEmailToken() +
+                "&email=" + newMember.getEmail());
+        context.setVariable("nickname", newMember.getNickname());
+        context.setVariable("host",host);
+        String message = templateEngine.process("mail/Joinlink", context);
+
         EmailMessage emailMessage = EmailMessage.builder()
                 .to(newMember.getEmail())
                 .subject("스터디하자, 회원가입 인증")
-                .content("/member/email/check-token?token=" + newMember.getEmailToken() +
-                "&email=" + newMember.getEmail())
+                .content(message)
                 .build();
         emailService.send(emailMessage);
     }
@@ -106,12 +124,21 @@ public class MemberService implements UserDetailsService {
 
     // 비밀번호 없이 로그인을 위한 인증 메일 토큰 전송
     public void sendEmailLoginToken(Member member) {
+
         member.generateEmailLoginToken();
+
+        // 템플릿으로 넘기는 Model과 동일한 역할
+        Context context = new Context();
+        context.setVariable("link","/member/email/check-login-token?token=" + member.getEmailLoginToken() +
+                        "&email=" + member.getEmail());
+        context.setVariable("nickname", member.getNickname());
+        context.setVariable("host",host);
+        String message = templateEngine.process("mail/emailLoginLink", context);
+
         EmailMessage emailMessage = EmailMessage.builder()
                 .to(member.getEmail())
                 .subject("스터디하자, 이메일 인증을 통한 로그인")
-                .content("/member/email/check-login-token?token=" + member.getEmailLoginToken() +
-                        "&email=" + member.getEmail())
+                .content(message)
                 .build();
         emailService.send(emailMessage);
     }
